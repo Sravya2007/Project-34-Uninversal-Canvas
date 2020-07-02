@@ -1,52 +1,85 @@
-var ball;
+var brush = [];
+var paint;
 var database, position;
+var r, g, b, strokeWeightVal,xval, yval;
+var brushPosition;
 
-function setup(){
+function setup() {
     database = firebase.database();
-    console.log(database);
-    ball = createSprite(250,250,10,10);
-    ball.shapeColor = "red";
-    var ballPosition = database.ref('ball/position');
-    ballPosition.on("value", readPosition, showError);
+    brushPosition = database.ref('brush/position');
+
+    brushPosition.on("value", readPosition, showError);
+
+    createCanvas(displayWidth, displayHeight);
 }
 
-function draw(){
-    background("white");
-    if(keyDown(LEFT_ARROW)){
-        changePosition(-1,0);
+function draw() {
+    if(position !== undefined) {
+        background("white");
+        mousePressed();
     }
-    else if(keyDown(RIGHT_ARROW)){
-        changePosition(1,0);
-    }
-    else if(keyDown(UP_ARROW)){
-        changePosition(0,-1);
-    }
-    else if(keyDown(DOWN_ARROW)){
-        changePosition(0,+1);
-    }
+}
 
-    drawSprites();
+function mousePressed() {   
+        
+        if(mouseIsPressed) {
+            xval = mouseX;
+            yval = mouseY;        
+            r = random(0, 255);
+            g = random(0, 255);
+            b = random(0, 255);
+            strokeWeightVal = random(10, 20);              
+        }
+        
+        paint = [xval, yval, r, g, b, strokeWeightVal];
+        brush.push(paint);             
+        
+        for(var i = 0; i < brush.length; i++) {  
+            stroke(brush[i][2], brush[i][3], brush[i][4]);
+            strokeWeight(brush[i][5]);
+            point(brush[i][0], brush[i][1]);            
+        }        
+
+        writePosition(xval, yval, r, g, b, strokeWeightVal);
+        
+        
+}
+
+function mouseReleased() { 
+    brushPosition.on("value", readPosition, showError);
 }
 
 function readPosition(data) {
     position = data.val();
-    console.log(position);
-    ball.x = position.x;
-    ball.y = position.y;
+    xval = position.x;
+    yval = position.y;
+    strokeWeightVal = position.strokeWeight;
+    r = position.r;
+    g = position.g;
+    b = position.b; 
+      
+    paint = [xval, yval, r, g, b, strokeWeightVal];
+    brush.push(paint);             
+
+    for(var i = 0; i < brush.length; i++) {  
+        stroke(brush[i][2], brush[i][3], brush[i][4]);
+        strokeWeight(brush[i][5]);
+        point(brush[i][0], brush[i][1]);            
+    }     
+ 
 }
 
-function writePosition(x,y) {
-    database.ref('ball/position').set({
-         'x' : position.x + x, 
-         'y' : position.y + y 
+function writePosition(xvar, yvar, r, g, b, strokeWeightVal) {
+    database.ref('brush/position').set({
+         'x' : xvar, 
+         'y' : yvar,
+         'r' : r,
+         'g' : g,            
+         'b' : b,              
+         'strokeWeight' : strokeWeightVal    
         })
 }
 
 function showError() {
     text("ERROR", 200, 200);
-}
-
-function changePosition(x,y){
-    ball.x = ball.x + x;
-    ball.y = ball.y + y;
 }
