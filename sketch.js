@@ -10,7 +10,7 @@ function setup() {
 
     brushPosition.on("value", readPosition, showError);
 
-    createCanvas(displayWidth, displayHeight);
+    createCanvas(1500, 900);
 }
 
 function draw() {
@@ -20,33 +20,26 @@ function draw() {
     }
 }
 
-function mousePressed() {   
-        
+function mousePressed() {         
         if(mouseIsPressed) {
             xval = mouseX;
             yval = mouseY;        
             r = random(0, 255);
             g = random(0, 255);
             b = random(0, 255);
-            strokeWeightVal = random(10, 20);              
+            strokeWeightVal = random(10, 20);  
+            writePosition(xval, yval, r, g, b, strokeWeightVal);           
         }
-        
-        paint = [xval, yval, r, g, b, strokeWeightVal];
-        brush.push(paint);             
-        
+                                
         for(var i = 0; i < brush.length; i++) {  
             stroke(brush[i][2], brush[i][3], brush[i][4]);
             strokeWeight(brush[i][5]);
             point(brush[i][0], brush[i][1]);            
-        }        
-
-        writePosition(xval, yval, r, g, b, strokeWeightVal);
-        
-        
+        }                   
 }
 
 function mouseReleased() { 
-    brushPosition.on("value", readPosition, showError);
+    //brushPosition.on("value", readPosition, showError);
 }
 
 function readPosition(data) {
@@ -59,20 +52,13 @@ function readPosition(data) {
     b = position.b; 
       
     paint = [xval, yval, r, g, b, strokeWeightVal];
-    brush.push(paint);             
-
-    for(var i = 0; i < brush.length; i++) {  
-        stroke(brush[i][2], brush[i][3], brush[i][4]);
-        strokeWeight(brush[i][5]);
-        point(brush[i][0], brush[i][1]);            
-    }     
- 
+    brush.push(paint);               
 }
 
-function writePosition(xvar, yvar, r, g, b, strokeWeightVal) {
+function writePosition(xval, yval, r, g, b, strokeWeightVal) {
     database.ref('brush/position').set({
-         'x' : xvar, 
-         'y' : yvar,
+         'x' : xval, 
+         'y' : yval,
          'r' : r,
          'g' : g,            
          'b' : b,              
